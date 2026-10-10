@@ -1,0 +1,15 @@
+[Unit]
+Description=Xboard AccessAudit node agent
+After=network.target xboard-node.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/xboard-audit-agent/audit-agent.py /opt/xboard-audit-agent/audit-agent.yml
+Restart=always
+RestartSec=5
+# 防护：内存上限，异常时自动拉起
+MemoryMax=128M
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,37 @@
+# Xboard AccessAudit 节点 agent 配置
+# 用法: python3 audit-agent.py /path/to/audit-agent.yml
+
+# 面板地址（节点能访问到的面板 URL，https 优先）
+panel_url: "https://your-panel.com"
+
+# 面板 server_token（与 xboard-node 配置里的 token 相同；
+# 在 Xboard 后台「系统设置 → 节点」里可查到）
+server_token: "your-server-token"
+
+# 本节点在面板里的节点 ID（服务器列表里的那个数字）
+node_id: 1
+
+# machine 模式部署时填写机器 ID（此时认证用 machine_id + token，
+# 用户列表走 /api/v2/server/user）。单节点部署留空或删除本行。
+# machine_id: 0
+
+# xray access log 文件路径（需先在节点开启 access log，见 README）
+log_path: "/var/log/xray/access.log"
+
+# 攒批大小：队列满 N 条立即上报
+batch_size: 50
+
+# 攒批间隔（秒）：不足 batch_size 也按此间隔上报
+flush_interval: 15
+
+# 规则刷新间隔（秒）
+rules_refresh: 300
+
+# 用户目录刷新间隔（秒）——仅在 access log 中用户标识是 uuid 时用到。
+# agent 会定期从面板拉取用户列表建立 uuid → user_id 映射。
+# 若日志中是 user@<数字ID>（xboard-node 默认），此项无影响。
+# 设为 0 = 关闭（日志中若出现 uuid 将被跳过并告警一次）
+user_refresh: 600
+
+# 面板是自签证书时设为 true（不推荐，正式环境用有效证书）
+insecure_tls: false
