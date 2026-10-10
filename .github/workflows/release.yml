@@ -30,6 +30,9 @@ jobs:
             exit 1
           }
 
+      - name: Build Admin App
+        run: bash scripts/build-admin.sh
+
       - name: Verify source
         run: |
           find . -type f -name '*.php' -print0 | xargs -0 -n1 php -l
