@@ -1,0 +1,52 @@
+name: plugin-ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Validate manifest
+        run: |
+          jq -e '
+            .code == "access_audit" and
+            (.version | test("^[0-9]+\\.[0-9]+\\.[0-9]+$")) and
+            .package.schema == 1 and
+            .package.admin.format == "static-app" and
+            .package.admin.dist == "admin/dist"
+          ' config.json >/dev/null
+          test -f admin/dist/index.html
+          test -f admin/dist/app.js
+          test -f admin/dist/styles.css
+
+      - name: Lint PHP
+        run: find . -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Check Admin App
+        run: node --check admin/dist/app.js
+
+      - name: Check legacy sidecar
+        run: python3 -m py_compile node-agent/audit-agent.py
+
+      - name: Build plugin package
+        run: bash scripts/package.sh
+
+      - name: Inspect package
+        run: |
+          VERSION="$(jq -r .version config.json)"
+          ZIP="dist/TXBoard-AccessAudit-v${VERSION}.zip"
+          test -f "$ZIP"
+          unzip -l "$ZIP" | grep -q 'AccessAudit/config.json'
+          unzip -l "$ZIP" | grep -q 'AccessAudit/admin/dist/index.html'
+          unzip -l "$ZIP" | grep -q 'AccessAudit/Plugin.php'

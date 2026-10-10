@@ -1,0 +1,11 @@
+dist/
+/.package/
+__pycache__/
+*.pyc
+.DS_Store
+*.log
+*.tmp
+*.bak
+.env
+node_modules/
+coverage/

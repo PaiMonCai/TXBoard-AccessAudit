@@ -1,0 +1,353 @@
+{
+  "name": "访问审计",
+  "code": "access_audit",
+  "type": "feature",
+  "version": "1.0.0",
+  "description": "节点访问审计：访问日志、规则命中、自动封禁、TG 告警、节点健康监控、数据分析与面板内设置",
+  "author": "ANRCM0",
+  "admin_menus": [
+    {
+      "title": "访问审计",
+      "path": "dashboard",
+      "icon": "🛡️",
+      "description": "实时概览、节点状态、访问日志和手动封禁",
+      "app": "admin/index.html#/dashboard"
+    },
+    {
+      "title": "审计分析",
+      "path": "analytics",
+      "icon": "📊",
+      "description": "趋势、节点/规则/用户/目标排行",
+      "app": "admin/index.html#/analytics"
+    }
+  ],
+  "admin_crud": {
+    "rules": {
+      "version": 1,
+      "title": "审计规则",
+      "description": "管理域名、关键词和 CIDR 审计规则",
+      "id_field": "id",
+      "api": {
+        "list": "/plugin/access-audit/rules",
+        "save": "/plugin/access-audit/rules/save",
+        "delete": "/plugin/access-audit/rules/delete"
+      },
+      "columns": [
+        {
+          "key": "id",
+          "title": "ID",
+          "type": "number",
+          "sortable": true,
+          "width": 72
+        },
+        {
+          "key": "name",
+          "title": "名称",
+          "searchable": true
+        },
+        {
+          "key": "match_type",
+          "title": "类型",
+          "type": "tag"
+        },
+        {
+          "key": "match_value",
+          "title": "匹配值",
+          "searchable": true
+        },
+        {
+          "key": "enabled",
+          "title": "启用",
+          "type": "boolean"
+        },
+        {
+          "key": "threshold",
+          "title": "阈值",
+          "type": "number"
+        },
+        {
+          "key": "window_minutes",
+          "title": "窗口(分钟)",
+          "type": "number"
+        }
+      ],
+      "form": [
+        {
+          "name": "id",
+          "type": "number",
+          "label": "ID",
+          "hidden": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "label": "名称",
+          "required": true
+        },
+        {
+          "name": "match_type",
+          "type": "select",
+          "label": "匹配类型",
+          "required": true,
+          "options": [
+            {
+              "label": "域名",
+              "value": "domain"
+            },
+            {
+              "label": "域名后缀",
+              "value": "domain_suffix"
+            },
+            {
+              "label": "关键词",
+              "value": "keyword"
+            },
+            {
+              "label": "IP CIDR",
+              "value": "ip_cidr"
+            }
+          ]
+        },
+        {
+          "name": "match_value",
+          "type": "string",
+          "label": "匹配值",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "boolean",
+          "label": "启用"
+        },
+        {
+          "name": "threshold",
+          "type": "number",
+          "label": "封禁阈值"
+        },
+        {
+          "name": "window_minutes",
+          "type": "number",
+          "label": "统计窗口（分钟）"
+        },
+        {
+          "name": "remark",
+          "type": "textarea",
+          "label": "备注"
+        }
+      ],
+      "actions": {
+        "create": true,
+        "edit": true,
+        "delete": true
+      }
+    },
+    "reports": {
+      "version": 1,
+      "title": "命中记录",
+      "description": "最近 200 条规则命中记录",
+      "id_field": "id",
+      "api": {
+        "list": "/plugin/access-audit/reports"
+      },
+      "columns": [
+        {
+          "key": "id",
+          "title": "ID",
+          "type": "number",
+          "width": 72
+        },
+        {
+          "key": "user_email",
+          "title": "用户"
+        },
+        {
+          "key": "rule_name",
+          "title": "规则"
+        },
+        {
+          "key": "node_id",
+          "title": "节点",
+          "type": "number"
+        },
+        {
+          "key": "target",
+          "title": "目标"
+        },
+        {
+          "key": "target_ip",
+          "title": "目标 IP"
+        },
+        {
+          "key": "source_ip",
+          "title": "源 IP"
+        },
+        {
+          "key": "banned",
+          "title": "封禁",
+          "type": "boolean"
+        },
+        {
+          "key": "created_at",
+          "title": "时间",
+          "type": "datetime"
+        }
+      ],
+      "actions": {
+        "create": false,
+        "edit": false,
+        "delete": false
+      }
+    },
+    "ban-logs": {
+      "version": 1,
+      "title": "封禁记录",
+      "description": "最近 100 条封禁/解封记录",
+      "id_field": "id",
+      "api": {
+        "list": "/plugin/access-audit/ban-logs"
+      },
+      "columns": [
+        {
+          "key": "id",
+          "title": "ID",
+          "type": "number",
+          "width": 72
+        },
+        {
+          "key": "user_id",
+          "title": "用户 ID",
+          "type": "number"
+        },
+        {
+          "key": "rule_id",
+          "title": "规则 ID",
+          "type": "number"
+        },
+        {
+          "key": "action",
+          "title": "动作",
+          "type": "tag"
+        },
+        {
+          "key": "reason",
+          "title": "原因"
+        },
+        {
+          "key": "created_at",
+          "title": "时间",
+          "type": "datetime"
+        }
+      ],
+      "actions": {
+        "create": false,
+        "edit": false,
+        "delete": false
+      }
+    }
+  },
+  "config": {
+    "alert_chat_id": {
+      "type": "string",
+      "default": "",
+      "label": "TG 告警 Chat ID",
+      "description": "留空则自动发给第一个绑定了 Telegram 的管理员"
+    },
+    "default_threshold": {
+      "type": "number",
+      "default": 3,
+      "label": "默认封禁阈值",
+      "description": "规则未单独设置阈值时，窗口内命中 N 次即封禁"
+    },
+    "default_window_minutes": {
+      "type": "number",
+      "default": 60,
+      "label": "默认统计窗口（分钟）",
+      "description": "规则未单独设置窗口时的默认时间窗口"
+    },
+    "auto_ban_enabled": {
+      "type": "boolean",
+      "default": true,
+      "label": "启用自动封禁",
+      "description": "达到阈值后自动封禁用户"
+    },
+    "report_retention_days": {
+      "type": "number",
+      "default": 30,
+      "label": "命中记录保留天数",
+      "description": "命中记录超过 N 天自动清理"
+    },
+    "node_health_enabled": {
+      "type": "boolean",
+      "default": true,
+      "label": "节点异常监控",
+      "description": "启用节点上报中断/命中突增监控"
+    },
+    "node_offline_minutes": {
+      "type": "number",
+      "default": 10,
+      "label": "上报中断阈值（分钟）",
+      "description": "节点超过 N 分钟无新上报时告警"
+    },
+    "node_offline_cooldown": {
+      "type": "number",
+      "default": 3600,
+      "label": "中断告警冷却（秒）",
+      "description": "同一节点两次中断告警的最小间隔"
+    },
+    "node_spike_enabled": {
+      "type": "boolean",
+      "default": true,
+      "label": "命中突增监控",
+      "description": "启用命中数突增通报"
+    },
+    "node_spike_window": {
+      "type": "number",
+      "default": 30,
+      "label": "突增统计窗口（分钟）",
+      "description": "对比当前窗口与上一窗口的命中数"
+    },
+    "node_spike_growth_pct": {
+      "type": "number",
+      "default": 200,
+      "label": "突增增长阈值（%）",
+      "description": "增长超过此百分比时告警"
+    },
+    "node_spike_min_hits": {
+      "type": "number",
+      "default": 10,
+      "label": "突增最小命中数",
+      "description": "当前窗口至少达到此命中数才判定突增"
+    },
+    "node_spike_cooldown": {
+      "type": "number",
+      "default": 1800,
+      "label": "突增告警冷却（秒）",
+      "description": "同一节点两次突增告警的最小间隔"
+    },
+    "access_log_retention_days": {
+      "type": "number",
+      "default": 3,
+      "label": "访问日志保留天数",
+      "description": "全量访问日志超过 N 天自动清理"
+    },
+    "analytics_enabled": {
+      "type": "boolean",
+      "default": true,
+      "label": "启用数据分析聚合",
+      "description": "每 5 分钟维护小时级聚合"
+    },
+    "analytics_retention_days": {
+      "type": "number",
+      "default": 365,
+      "label": "分析聚合保留天数",
+      "description": "小时级聚合统计保留天数"
+    }
+  },
+  "package": {
+    "schema": 1,
+    "admin": {
+      "format": "static-app",
+      "dist": "admin/dist"
+    }
+  }
+}

@@ -1,0 +1,52 @@
+name: release-plugin
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Verify tag matches manifest
+        run: |
+          VERSION="$(jq -r .version config.json)"
+          test "${GITHUB_REF_NAME}" = "v${VERSION}" || {
+            echo "Tag ${GITHUB_REF_NAME} does not match config.json version ${VERSION}" >&2
+            exit 1
+          }
+
+      - name: Verify source
+        run: |
+          find . -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+          node --check admin/dist/app.js
+          python3 -m py_compile node-agent/audit-agent.py
+
+      - name: Build plugin package
+        run: bash scripts/package.sh
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="$(jq -r .version config.json)"
+          ZIP="dist/TXBoard-AccessAudit-v${VERSION}.zip"
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" "$ZIP" --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" "$ZIP"               --title "TXBoard AccessAudit ${GITHUB_REF_NAME}"               --generate-notes
+          fi
